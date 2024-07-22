@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package systemstatserver;
+option go_package = "./;pb";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+message LoadAvgStat {
+    float load_avg=1;
+}
+
+message CpuStat {
+    float user_pr=1;
+    float nice_pr=2;
+    float system_pr=3;
+    float idle_pr=4;
+    float iowait_pr=5;
+    float steal_pr=6;
+}
+
+message MemStat {
+    uint64 mem_total=1;
+    uint64 mem_free=2;
+    uint64 buffers=3;
+    uint64 cached=4;
+    uint64 swap_cached=5;
+    uint64 swap_total=6;
+    uint64 swap_free=7;
+    uint64 active=8;
+    uint64 inactive=9;
+    uint64 vmalloc_used=10;
+    uint64 mapped=11;
+}
+
+message DiskStat {
+    message DiskLoad {
+        double tps=1;
+        double rps=2;
+        double wps=3;
+    }
+
+    message DiskSpace {
+        int64 total=1;
+        int64 used=2;
+        int64 available=3;
+        int64 inodes=4;
+        int64 percent_used=5;
+    }
+    map<string, DiskLoad> disk_load=1;
+    map<string, DiskSpace> disk_space=2;
+}
+
+message NetworkStat {
+    message ListenSocket {
+        string protocol = 1;
+        string local_address = 2;
+        string peer_address = 3;
+        string process = 4;
+    }
+
+    repeated ListenSocket listen_sockets=1;
+    map<string, int32> socket_states=2;
+}
+
+message FullStat {
+    google.protobuf.Timestamp time = 1;
+    google.protobuf.Duration interval = 2;
+    LoadAvgStat load_stat=3;
+    CpuStat cpu_stat=4;
+    MemStat mem_stat=5;
+    DiskStat disk_stat=6;
+    NetworkStat network_stat=7;
+}
+
+service ServiceStat {
+  rpc GetFullStatStream(ServiceStatRequest) returns (stream ServiceStatResponse);
+}
+
+message ServiceStatRequest {
+  google.protobuf.Duration interval = 1;
+  google.protobuf.Duration avgwindow = 2;
+}
+
+message ServiceStatResponse {
+    FullStat full_stat = 1;
+}

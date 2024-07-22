@@ -1,0 +1,23 @@
+
+[logger]
+level = "INFO"
+format = "json"
+addsource = false
+
+[grpc]
+addr = ":50051"
+requesttimeout = 0
+mininterval = "1s"
+
+[statistics]
+intervalstat = "5s"
+maxavgwindow = "10m"
+
+[metrics]
+loadavg=true
+memory=true
+cpu=true
+disk=true
+network=true
+
+
