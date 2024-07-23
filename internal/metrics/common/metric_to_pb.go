@@ -66,7 +66,10 @@ func (m Metrics) AggregatedStatPB(queueType int, avgWindow time.Duration) (any, 
 		if !ok {
 			return nil, fmt.Errorf("invalid response type: expected *diskstat.DiskStat, got %T", stat)
 		}
-		pbStat := pb.DiskStat{}
+		pbStat := &pb.DiskStat{
+			DiskLoad:  make(map[string]*pb.DiskStat_DiskLoad),
+			DiskSpace: make(map[string]*pb.DiskStat_DiskSpace),
+		}
 		for disk, load := range s.DiskLoad {
 			pbStat.DiskLoad[disk] = &pb.DiskStat_DiskLoad{
 				Tps: load.TransfersPerSec,
@@ -89,7 +92,9 @@ func (m Metrics) AggregatedStatPB(queueType int, avgWindow time.Duration) (any, 
 		if !ok {
 			return nil, fmt.Errorf("invalid response type: expected *networkstat.NetworkStat, got %T", stat)
 		}
-		pbStat := pb.NetworkStat{}
+		pbStat := &pb.NetworkStat{
+			SocketStates: make(map[string]int32),
+		}
 		for _, sockets := range s.ListenSockets {
 			pbStat.ListenSockets = append(pbStat.ListenSockets, &pb.NetworkStat_ListenSocket{
 				LocalAddress: sockets.LocalAddress,
@@ -101,6 +106,7 @@ func (m Metrics) AggregatedStatPB(queueType int, avgWindow time.Duration) (any, 
 		for state, cnt := range s.SocketStates {
 			pbStat.SocketStates[state] += cnt
 		}
+		return pbStat, nil
 	}
 
 	return nil, nil

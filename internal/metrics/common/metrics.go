@@ -74,7 +74,7 @@ func (m Metrics) AggregatedStat(queueType int, avgWindow time.Duration) (any, er
 	if err != nil {
 		return nil, err
 	}
-	m.logger.Info(fmt.Sprintf("Count stats to arg %v", len(stat)))
+
 	switch aggregator.StatQueueType(queueType) {
 	case LoadAvgStatType:
 		return loadavg.AggregatedStats(stat)

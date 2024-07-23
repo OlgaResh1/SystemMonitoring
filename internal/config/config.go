@@ -25,6 +25,7 @@ type LoggerConf struct {
 type StatisticsConf struct {
 	IntervalStat time.Duration `mapstructure:"intervalstat"`
 	MaxAvgWindow time.Duration `mapstructure:"maxavgwindow"`
+	AvgWindow    time.Duration `mapstructure:"avgwindow"`
 }
 type MetricsConf struct {
 	LoadavgEnabled bool `mapstructure:"loadavg"`

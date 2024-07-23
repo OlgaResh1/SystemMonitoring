@@ -72,6 +72,10 @@ func TestMetrics(t *testing.T) {
 	require.True(t, ok)
 	require.True(t, len(networkStat.SocketStates) > 0)
 
+	filStatPB, err := metrics.AggregatedFullStatPB(3 * time.Second)
+	require.NoError(t, err)
+	require.NotNil(t, filStatPB)
+
 	fullStat, err := metrics.AggregatedFullStat(3 * time.Second)
 	require.NoError(t, err)
 	require.NotNil(t, fullStat)

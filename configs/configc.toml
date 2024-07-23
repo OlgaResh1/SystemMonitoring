@@ -1,2 +1,6 @@
 [grpc]
 addr = ":50051"
+
+[statistics]
+intervalstat = "30s"
+avgwindow = "1m"
