@@ -1,5 +1,9 @@
 package diskstat
 
+import (
+	"github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/common"
+)
+
 type DiskLoad struct {
 	TransfersPerSec, WritedPerSec, ReadedPerSec float64
 }
@@ -8,11 +12,16 @@ type DiskSpace struct {
 	Total, Used, Available, INodes, UsedPercent int64
 }
 type DiskStat struct {
+	common.Metric
 	DiskLoad  map[string]DiskLoad
 	DiskSpace map[string]DiskSpace
 }
 
-func AggregatedStats(stat []any) (*DiskStat, error) {
+func (s *DiskStat) MetricType() int {
+	return common.DiskStatType
+}
+
+func AggregatedStats(stat []common.Metric) (common.Metric, error) {
 	diskStat := &DiskStat{
 		DiskLoad:  make(map[string]DiskLoad),
 		DiskSpace: make(map[string]DiskSpace),

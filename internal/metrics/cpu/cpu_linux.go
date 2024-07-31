@@ -7,9 +7,11 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/common"
 )
 
-func CurrentStat() (*CPUStat, error) {
+func CurrentStat() (common.Metric, error) {
 	cmd := exec.Command("iostat", "-c")
 	output, err := cmd.Output()
 	if err != nil {
@@ -29,22 +31,22 @@ func CurrentStat() (*CPUStat, error) {
 		if len(fields) != 6 {
 			return nil, fmt.Errorf("unexpected format of iostat output, count columns %d", len(fields))
 		}
-		if cpu.User, err = parceValueToFloat(fields[0]); err != nil {
+		if cpu.User, err = parseValueToFloat(fields[0]); err != nil {
 			return nil, err
 		}
-		if cpu.Nice, err = parceValueToFloat(fields[1]); err != nil {
+		if cpu.Nice, err = parseValueToFloat(fields[1]); err != nil {
 			return nil, err
 		}
-		if cpu.System, err = parceValueToFloat(fields[2]); err != nil {
+		if cpu.System, err = parseValueToFloat(fields[2]); err != nil {
 			return nil, err
 		}
-		if cpu.Iowait, err = parceValueToFloat(fields[3]); err != nil {
+		if cpu.Iowait, err = parseValueToFloat(fields[3]); err != nil {
 			return nil, err
 		}
-		if cpu.Steal, err = parceValueToFloat(fields[4]); err != nil {
+		if cpu.Steal, err = parseValueToFloat(fields[4]); err != nil {
 			return nil, err
 		}
-		if cpu.Idle, err = parceValueToFloat(fields[5]); err != nil {
+		if cpu.Idle, err = parseValueToFloat(fields[5]); err != nil {
 			return nil, err
 		}
 		return cpu, nil
@@ -52,10 +54,10 @@ func CurrentStat() (*CPUStat, error) {
 	return nil, fmt.Errorf("unexpected format of iostat output")
 }
 
-func parceValueToFloat(input string) (result float32, err error) {
+func parseValueToFloat(input string) (result float32, err error) {
 	res, err := strconv.ParseFloat(input, 32)
 	if err != nil {
-		return 0, fmt.Errorf("unexpected format of iostat output, error parce float %s", input)
+		return 0, fmt.Errorf("unexpected format of iostat output, error parse float %s", input)
 	}
 	result = float32(res)
 	return result, nil

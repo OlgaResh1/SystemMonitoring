@@ -17,10 +17,10 @@ func CurrentStat() (*MemStat, error) {
 		return nil, err
 	}
 	defer file.Close()
-	return parceStat(file)
+	return parseStat(file)
 }
 
-func parceStat(file io.Reader) (cpuStat *MemStat, err error) {
+func parseStat(file io.Reader) (cpuStat *MemStat, err error) {
 	memstat := &MemStat{}
 
 	scanner := bufio.NewScanner(file)

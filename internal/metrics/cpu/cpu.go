@@ -1,12 +1,21 @@
 package cpustat
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/common"
+)
 
 type CPUStat struct {
+	common.Metric
 	User, Nice, System, Idle, Iowait, Steal float32
 }
 
-func AggregatedStats(stat []any) (*CPUStat, error) {
+func (s *CPUStat) MetricType() int {
+	return common.CPUStatType
+}
+
+func AggregatedStats(stat []common.Metric) (common.Metric, error) {
 	cpu := &CPUStat{}
 	if len(stat) == 0 {
 		return cpu, nil

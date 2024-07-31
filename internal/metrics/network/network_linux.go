@@ -5,6 +5,8 @@ package networkstat
 import (
 	"os/exec"
 	"strings"
+
+	"github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/common"
 )
 
 type ListenSocket struct {
@@ -15,8 +17,13 @@ type ListenSocket struct {
 }
 
 type NetworkStat struct {
+	common.Metric
 	ListenSockets []ListenSocket
 	SocketStates  map[string]int32
+}
+
+func (s *NetworkStat) MetricType() int {
+	return common.NetworkStatType
 }
 
 func CurrentStat() (*NetworkStat, error) {
@@ -34,7 +41,7 @@ func CurrentStat() (*NetworkStat, error) {
 	}, nil
 }
 
-func AggregatedStats(stat []any) (*NetworkStat, error) {
+func AggregatedStats(stat []common.Metric) (common.Metric, error) {
 	networkStat := &NetworkStat{
 		SocketStates: make(map[string]int32),
 	}

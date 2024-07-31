@@ -25,18 +25,18 @@ func CurrentStat() (*DiskStat, error) {
 	return stat, nil
 }
 
-func parceValueToFloat(input string) (result float64, err error) {
+func parseValueToFloat(input string) (result float64, err error) {
 	result, err = strconv.ParseFloat(input, 64)
 	if err != nil {
-		return 0, fmt.Errorf("unexpected format of iostat output, error parce float %s", input)
+		return 0, fmt.Errorf("unexpected format of iostat output, error parse float %s", input)
 	}
 	return result, nil
 }
 
-func parceValueToInt(input string) (result int64, err error) {
+func parseValueToInt(input string) (result int64, err error) {
 	result, err = strconv.ParseInt(input, 10, 64)
 	if err != nil {
-		return 0, fmt.Errorf("unexpected format of iostat output, error parce int %s", input)
+		return 0, fmt.Errorf("unexpected format of iostat output, error parse int %s", input)
 	}
 	return result, nil
 }
@@ -58,15 +58,15 @@ func statDiskLoad() (loadStat map[string]DiskLoad, err error) {
 			continue
 		}
 		diskLoad := DiskLoad{}
-		diskLoad.TransfersPerSec, err = parceValueToFloat(fields[3])
+		diskLoad.TransfersPerSec, err = parseValueToFloat(fields[3])
 		if err != nil {
 			return nil, err
 		}
-		diskLoad.WritedPerSec, err = parceValueToFloat(fields[2])
+		diskLoad.WritedPerSec, err = parseValueToFloat(fields[2])
 		if err != nil {
 			return nil, err
 		}
-		diskLoad.ReadedPerSec, err = parceValueToFloat(fields[1])
+		diskLoad.ReadedPerSec, err = parseValueToFloat(fields[1])
 		if err != nil {
 			return nil, err
 		}
@@ -92,19 +92,19 @@ func statDiskSpace() (spaceStat map[string]DiskSpace, err error) {
 			continue
 		}
 		diskSpace := DiskSpace{}
-		diskSpace.Total, err = parceValueToInt(fields[1])
+		diskSpace.Total, err = parseValueToInt(fields[1])
 		if err != nil {
 			return nil, err
 		}
-		diskSpace.Used, err = parceValueToInt(fields[2])
+		diskSpace.Used, err = parseValueToInt(fields[2])
 		if err != nil {
 			return nil, err
 		}
-		diskSpace.Available, err = parceValueToInt(fields[3])
+		diskSpace.Available, err = parseValueToInt(fields[3])
 		if err != nil {
 			return nil, err
 		}
-		diskSpace.UsedPercent, err = parceValueToInt(strings.ReplaceAll(fields[4], "%", ""))
+		diskSpace.UsedPercent, err = parseValueToInt(strings.ReplaceAll(fields[4], "%", ""))
 		if err != nil {
 			return nil, err
 		}
@@ -125,7 +125,7 @@ func statDiskSpace() (spaceStat map[string]DiskSpace, err error) {
 			continue
 		}
 		diskSpace := spaceStat[fields[0]]
-		diskSpace.INodes, err = parceValueToInt(fields[1])
+		diskSpace.INodes, err = parseValueToInt(fields[1])
 		if err != nil {
 			return nil, err
 		}

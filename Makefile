@@ -3,8 +3,7 @@ BIN_CLIENT := "./bin/SystemStatsClient"
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
 DOCKER_IMG="statsdaemon:develop"
 DOCKER_IMG_CLIENT="statsdaemon:develop"
-DOCKER_CONR_NAME="statsdaemon"
-DOCKER_CONR_NAME="statsdaemon"
+DOCKER_CONTAINER="statsdaemon"
 
 generate:
 	go generate ./...

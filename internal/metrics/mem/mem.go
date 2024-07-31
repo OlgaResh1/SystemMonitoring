@@ -1,13 +1,21 @@
 package memstat
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/common"
+)
 
 type MemStat struct {
 	MemTotal, MemFree, Buffers, Cached, SwapCached, SwapTotal, SwapFree,
 	Active, Inactive, VmallocUsed, Mapped uint64
 }
 
-func AggregatedStats(stat []any) (*MemStat, error) {
+func (s *MemStat) MetricType() int {
+	return common.DiskStatType
+}
+
+func AggregatedStats(stat []common.Metric) (common.Metric, error) {
 	if len(stat) == 0 {
 		return &MemStat{}, nil
 	}

@@ -14,7 +14,7 @@ import (
 	"github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/app"
 	"github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/config"
 	"github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/logger"
-	metrics "github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/common"
+	metrics "github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/metrics"
 	internalgrpc "github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/server/grpc"
 	"github.com/spf13/pflag"
 )

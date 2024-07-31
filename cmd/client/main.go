@@ -39,16 +39,16 @@ func main() {
 	defer cancel()
 
 	client := pb.NewServiceStatClient(conn)
+
+	req := &pb.ServiceStatRequest{
+		Interval:  durationpb.New(cfg.Stat.IntervalStat),
+		Avgwindow: durationpb.New(cfg.Stat.AvgWindow),
+	}
+	stream, err := client.GetFullStatStream(ctx, req)
+	if err != nil {
+		logrus.Fatal(err)
+	}
 	for {
-		req := &pb.ServiceStatRequest{
-			Interval:  durationpb.New(cfg.Stat.IntervalStat),
-			Avgwindow: durationpb.New(cfg.Stat.AvgWindow),
-		}
-		stream, err := client.GetFullStatStream(ctx, req)
-		if err != nil {
-			logrus.Error(err)
-			break
-		}
 		stat, err := stream.Recv()
 		if err != nil {
 			logrus.Error(err)

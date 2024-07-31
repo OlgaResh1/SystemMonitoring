@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/aggregator"
+	"github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/common"
 	cpustat "github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/cpu"
 	diskstat "github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/disk"
 	"github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/loadavg"
@@ -15,13 +15,13 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (m Metrics) AggregatedStatPB(queueType int, avgWindow time.Duration) (any, error) {
+func (m Metrics) AggregatedStatPB(queueType int, avgWindow time.Duration) (common.Metric, error) {
 	stat, err := m.AggregatedStat(queueType, avgWindow)
 	if err != nil {
 		return nil, err
 	}
-	switch aggregator.StatQueueType(queueType) {
-	case LoadAvgStatType:
+	switch queueType {
+	case common.LoadAvgStatType:
 		s, ok := stat.(*loadavg.LoadAvg)
 		if !ok {
 			return nil, fmt.Errorf("invalid response type: expected *loadavg.LoadAvg, got %T", stat)
@@ -29,7 +29,7 @@ func (m Metrics) AggregatedStatPB(queueType int, avgWindow time.Duration) (any, 
 		return &pb.LoadAvgStat{
 			LoadAvg: s.LoadAvg1,
 		}, nil
-	case CPUStatType:
+	case common.CPUStatType:
 		s, ok := stat.(*cpustat.CPUStat)
 		if !ok {
 			return nil, fmt.Errorf("invalid response type: expected *cpustat.CPUStat, got %T", stat)
@@ -43,7 +43,7 @@ func (m Metrics) AggregatedStatPB(queueType int, avgWindow time.Duration) (any, 
 			StealPr:  s.Steal,
 		}, nil
 
-	case MemStatType:
+	case common.MemStatType:
 		s, ok := stat.(*memstat.MemStat)
 		if !ok {
 			return nil, fmt.Errorf("invalid response type: expected *memstat.MemStat, got %T", stat)
@@ -61,7 +61,7 @@ func (m Metrics) AggregatedStatPB(queueType int, avgWindow time.Duration) (any, 
 			VmallocUsed: s.VmallocUsed,
 			Mapped:      s.Mapped,
 		}, nil
-	case DiskStatType:
+	case common.DiskStatType:
 		s, ok := stat.(*diskstat.DiskStat)
 		if !ok {
 			return nil, fmt.Errorf("invalid response type: expected *diskstat.DiskStat, got %T", stat)
@@ -87,7 +87,7 @@ func (m Metrics) AggregatedStatPB(queueType int, avgWindow time.Duration) (any, 
 			}
 		}
 		return pbStat, nil
-	case NetworkStatType:
+	case common.NetworkStatType:
 		s, ok := stat.(*networkstat.NetworkStat)
 		if !ok {
 			return nil, fmt.Errorf("invalid response type: expected *networkstat.NetworkStat, got %T", stat)
@@ -113,23 +113,23 @@ func (m Metrics) AggregatedStatPB(queueType int, avgWindow time.Duration) (any, 
 }
 
 func (m Metrics) AggregatedFullStatPB(avgWindow time.Duration) (any, error) {
-	load, err := m.AggregatedStatPB(int(LoadAvgStatType), avgWindow)
+	load, err := m.AggregatedStatPB(common.LoadAvgStatType, avgWindow)
 	if err != nil {
 		return nil, err
 	}
-	cpu, err := m.AggregatedStatPB(int(CPUStatType), avgWindow)
+	cpu, err := m.AggregatedStatPB(common.CPUStatType, avgWindow)
 	if err != nil {
 		return nil, err
 	}
-	mem, err := m.AggregatedStatPB(int(MemStatType), avgWindow)
+	mem, err := m.AggregatedStatPB(common.MemStatType, avgWindow)
 	if err != nil {
 		return nil, err
 	}
-	disk, err := m.AggregatedStatPB(int(DiskStatType), avgWindow)
+	disk, err := m.AggregatedStatPB(common.DiskStatType, avgWindow)
 	if err != nil {
 		return nil, err
 	}
-	network, err := m.AggregatedStatPB(int(NetworkStatType), avgWindow)
+	network, err := m.AggregatedStatPB(common.NetworkStatType, avgWindow)
 	if err != nil {
 		return nil, err
 	}

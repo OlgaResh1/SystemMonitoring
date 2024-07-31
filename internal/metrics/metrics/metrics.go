@@ -1,29 +1,19 @@
 package metrics
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/aggregator"
 	"github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/config"
 	"github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/logger"
+	"github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/common"
 	cpu "github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/cpu"
 	disk "github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/disk"
-	loadavg "github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/loadavg"
+	"github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/loadavg"
 	mem "github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/mem"
 	network "github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/network"
 )
-
-const (
-	LoadAvgStatType aggregator.StatQueueType = iota
-	CPUStatType
-	MemStatType
-	DiskStatType
-	NetworkStatType
-)
-
-var ErrUnknownQueueType = errors.New("unknown queue type")
 
 type Metrics struct {
 	avg            aggregator.Aggregator
@@ -34,6 +24,7 @@ type Metrics struct {
 	diskEnabled    bool
 	networkEnabled bool
 }
+
 type FullStat struct {
 	timestamp   time.Time
 	interval    time.Duration
@@ -54,19 +45,19 @@ func New(cfg config.Config, avg aggregator.Aggregator, logger logger.Logger) *Me
 }
 
 func (m Metrics) CurrentStat(queueType int) (any, error) {
-	switch aggregator.StatQueueType(queueType) {
-	case LoadAvgStatType:
+	switch queueType {
+	case common.LoadAvgStatType:
 		return loadavg.CurrentStat()
-	case CPUStatType:
+	case common.CPUStatType:
 		return cpu.CurrentStat()
-	case MemStatType:
+	case common.MemStatType:
 		return mem.CurrentStat()
-	case DiskStatType:
+	case common.DiskStatType:
 		return disk.CurrentStat()
-	case NetworkStatType:
+	case common.NetworkStatType:
 		return network.CurrentStat()
 	}
-	return nil, ErrUnknownQueueType
+	return nil, common.ErrUnknownQueueType
 }
 
 func (m Metrics) AggregatedStat(queueType int, avgWindow time.Duration) (any, error) {
@@ -74,20 +65,24 @@ func (m Metrics) AggregatedStat(queueType int, avgWindow time.Duration) (any, er
 	if err != nil {
 		return nil, err
 	}
-
-	switch aggregator.StatQueueType(queueType) {
-	case LoadAvgStatType:
-		return loadavg.AggregatedStats(stat)
-	case CPUStatType:
-		return cpu.AggregatedStats(stat)
-	case MemStatType:
-		return mem.AggregatedStats(stat)
-	case DiskStatType:
-		return disk.AggregatedStats(stat)
-	case NetworkStatType:
-		return network.AggregatedStats(stat)
+	var metrics []common.Metric
+	for _, v := range stat {
+		metrics = append(metrics, v.(common.Metric))
 	}
-	return nil, ErrUnknownQueueType
+
+	switch queueType {
+	case common.LoadAvgStatType:
+		return loadavg.AggregatedStats(metrics)
+	case common.CPUStatType:
+		return cpu.AggregatedStats(metrics)
+	case common.MemStatType:
+		return mem.AggregatedStats(metrics)
+	case common.DiskStatType:
+		return disk.AggregatedStats(metrics)
+	case common.NetworkStatType:
+		return network.AggregatedStats(metrics)
+	}
+	return nil, common.ErrUnknownQueueType
 }
 
 func (m Metrics) AggregatedFullStat(avgWindow time.Duration) (any, error) {
@@ -96,7 +91,7 @@ func (m Metrics) AggregatedFullStat(avgWindow time.Duration) (any, error) {
 	fullstat.interval = avgWindow
 
 	if m.loadavgEnabled {
-		stat, err := m.AggregatedStat(int(LoadAvgStatType), avgWindow)
+		stat, err := m.AggregatedStat(int(common.LoadAvgStatType), avgWindow)
 		if err != nil {
 			m.logger.Error(fmt.Sprintf("error aggregate loadavg statistic: %v", err))
 			return nil, err
@@ -104,7 +99,7 @@ func (m Metrics) AggregatedFullStat(avgWindow time.Duration) (any, error) {
 		fullstat.loadStat = stat.(loadavg.LoadAvg)
 	}
 	if m.cpuEnabled {
-		stat, err := m.AggregatedStat(int(CPUStatType), avgWindow)
+		stat, err := m.AggregatedStat(int(common.CPUStatType), avgWindow)
 		if err != nil {
 			m.logger.Error(fmt.Sprintf("error aggregate cpu statistic: %v", err))
 			return nil, err
@@ -112,7 +107,7 @@ func (m Metrics) AggregatedFullStat(avgWindow time.Duration) (any, error) {
 		fullstat.cpuStat = stat.(cpu.CPUStat)
 	}
 	if m.memoryEnabled {
-		stat, err := m.AggregatedStat(int(MemStatType), avgWindow)
+		stat, err := m.AggregatedStat(common.MemStatType, avgWindow)
 		if err != nil {
 			m.logger.Error(fmt.Sprintf("error aggregate mem statistic: %v", err))
 			return nil, err
@@ -120,7 +115,7 @@ func (m Metrics) AggregatedFullStat(avgWindow time.Duration) (any, error) {
 		fullstat.memStat = stat.(mem.MemStat)
 	}
 	if m.diskEnabled {
-		stat, err := m.AggregatedStat(int(DiskStatType), avgWindow)
+		stat, err := m.AggregatedStat(int(common.DiskStatType), avgWindow)
 		if err != nil {
 			m.logger.Error(fmt.Sprintf("error aggregate disk statistic: %v", err))
 			return nil, err
@@ -128,7 +123,7 @@ func (m Metrics) AggregatedFullStat(avgWindow time.Duration) (any, error) {
 		fullstat.diskStat = stat.(disk.DiskStat)
 	}
 	if m.networkEnabled {
-		stat, err := m.AggregatedStat(int(NetworkStatType), avgWindow)
+		stat, err := m.AggregatedStat(int(common.NetworkStatType), avgWindow)
 		if err != nil {
 			m.logger.Error(fmt.Sprintf("error aggregate network statistic: %v", err))
 			return nil, err
@@ -147,18 +142,18 @@ func (m Metrics) setup(cfg config.Config) {
 	m.networkEnabled = cfg.Metrics.NetworkEnabled
 
 	if m.loadavgEnabled {
-		m.avg.AddQueue(LoadAvgStatType)
+		m.avg.AddQueue(common.LoadAvgStatType)
 	}
 	if m.cpuEnabled {
-		m.avg.AddQueue(CPUStatType)
+		m.avg.AddQueue(common.CPUStatType)
 	}
 	if m.memoryEnabled {
-		m.avg.AddQueue(MemStatType)
+		m.avg.AddQueue(common.MemStatType)
 	}
 	if m.diskEnabled {
-		m.avg.AddQueue(DiskStatType)
+		m.avg.AddQueue(common.DiskStatType)
 	}
 	if m.networkEnabled {
-		m.avg.AddQueue(NetworkStatType)
+		m.avg.AddQueue(common.NetworkStatType)
 	}
 }

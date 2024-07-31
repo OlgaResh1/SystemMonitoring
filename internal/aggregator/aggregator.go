@@ -47,8 +47,8 @@ func (a *Aggregator) RegisterMetric(metrics metric) {
 	a.metrics = metrics
 }
 
-func (a Aggregator) AddQueue(queueType StatQueueType) {
-	a.queues[queueType] = statqueue.NewStatQueue()
+func (a Aggregator) AddQueue(queueType int) {
+	a.queues[StatQueueType(queueType)] = statqueue.NewStatQueue()
 }
 
 func (a Aggregator) Run(ctx context.Context) error {

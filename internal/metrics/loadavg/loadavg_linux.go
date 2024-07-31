@@ -6,9 +6,12 @@ import (
 	"fmt"
 	"io"
 	"os"
+
+	"github.com/OlgaResh1/OtusGoHomeWork/SystemMonitoring/internal/metrics/common"
 )
 
 type LoadAvg struct {
+	common.Metric
 	LoadAvg1  float32
 	LoadAvg5  float32
 	LoadAvg15 float32
@@ -17,16 +20,20 @@ type LoadAvg struct {
 	// LastPID             int
 }
 
+func (s *LoadAvg) MetricType() int {
+	return common.LoadAvgStatType
+}
+
 func CurrentStat() (*LoadAvg, error) {
 	file, err := os.Open("/proc/loadavg")
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
-	return parceStat(file)
+	return parseStat(file)
 }
 
-func parceStat(file io.Reader) (*LoadAvg, error) {
+func parseStat(file io.Reader) (*LoadAvg, error) {
 	loadavg := &LoadAvg{}
 	ret, err := fmt.Fscanf(file, "%f %f %f", &loadavg.LoadAvg1,
 		&loadavg.LoadAvg5, &loadavg.LoadAvg15)
@@ -36,7 +43,7 @@ func parceStat(file io.Reader) (*LoadAvg, error) {
 	return loadavg, nil
 }
 
-func AggregatedStats(stat []any) (*LoadAvg, error) {
+func AggregatedStats(stat []common.Metric) (common.Metric, error) {
 	loadavg := &LoadAvg{}
 	if len(stat) == 0 {
 		return loadavg, nil
