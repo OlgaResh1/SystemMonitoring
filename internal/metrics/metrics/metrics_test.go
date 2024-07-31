@@ -37,28 +37,28 @@ func TestMetrics(t *testing.T) {
 
 	time.Sleep(3 * time.Second)
 
-	stat, err := metrics.AggregatedStat(int(common.LoadAvgStatType), 3*time.Second)
+	stat, err := metrics.AggregatedStat(common.LoadAvgStatType, 3*time.Second)
 	require.NoError(t, err)
 	require.NotNil(t, stat)
 	load, ok := stat.(*loadavg.LoadAvg)
 	require.True(t, ok)
 	require.False(t, load.LoadAvg1 == 0 && load.LoadAvg5 == 0 && load.LoadAvg15 == 0)
 
-	stat, err = metrics.AggregatedStat(int(common.CPUStatType), 3*time.Second)
+	stat, err = metrics.AggregatedStat(common.CPUStatType, 3*time.Second)
 	require.NoError(t, err)
 	require.NotNil(t, stat)
 	cpuStat, ok := stat.(*cpustat.CPUStat)
 	require.True(t, ok)
 	require.True(t, cpuStat.User+cpuStat.System+cpuStat.Idle > 0)
 
-	stat, err = metrics.AggregatedStat(int(common.MemStatType), 3*time.Second)
+	stat, err = metrics.AggregatedStat(common.MemStatType, 3*time.Second)
 	require.NoError(t, err)
 	require.NotNil(t, stat)
 	memStat, ok := stat.(*memstat.MemStat)
 	require.True(t, ok)
 	require.True(t, memStat.MemTotal > 0)
 
-	stat, err = metrics.AggregatedStat(int(common.DiskStatType), 3*time.Second)
+	stat, err = metrics.AggregatedStat(common.DiskStatType, 3*time.Second)
 	require.NoError(t, err)
 	require.NotNil(t, stat)
 	diskStat, ok := stat.(*diskstat.DiskStat)
@@ -66,7 +66,7 @@ func TestMetrics(t *testing.T) {
 	require.True(t, len(diskStat.DiskSpace) > 0)
 	require.True(t, len(diskStat.DiskLoad) > 0)
 
-	stat, err = metrics.AggregatedStat(int(common.NetworkStatType), 3*time.Second)
+	stat, err = metrics.AggregatedStat(common.NetworkStatType, 3*time.Second)
 	require.NoError(t, err)
 	require.NotNil(t, stat)
 	networkStat, ok := stat.(*networkstat.NetworkStat)
