@@ -15,7 +15,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (m Metrics) AggregatedStatPB(queueType int, avgWindow time.Duration) (common.Metric, error) {
+func (m Metrics) AggregatedStatPB(queueType int, avgWindow time.Duration) (any, error) {
 	stat, err := m.AggregatedStat(queueType, avgWindow)
 	if err != nil {
 		return nil, err
